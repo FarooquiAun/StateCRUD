@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StateRepo extends JpaRepository<StateEntity,Long>, JpaSpecificationExecutor<StateEntity> {
@@ -20,5 +22,5 @@ public interface StateRepo extends JpaRepository<StateEntity,Long>, JpaSpecifica
     @Query("SELECT DISTINCT s FROM StateEntity s LEFT JOIN FETCH s.cityEntity WHERE s.status = 'Y'")
     List<StateEntity> findAllStatesWithCities();
 
-
+    Optional<StateEntity> findByStateNameIgnoreCase(String stateName);
 }

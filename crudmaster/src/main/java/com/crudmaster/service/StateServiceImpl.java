@@ -8,13 +8,18 @@ import com.crudmaster.entity.StateEntity;
 import com.crudmaster.mapper.StateMapper;
 import com.crudmaster.repository.StateRepo;
 import com.crudmaster.specification.statespecification.StateSpecification;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,5 +87,30 @@ public class StateServiceImpl implements StateService{
         Pageable  pageable=PageRequest.of(filter.getPage(), filter.getSize(),Sort.by(direction, filter.getSortBy()));
           Page<StateFilterReturnDto> stateFilterReturnDto= stateRepo.findAll(spec,pageable).map(stateMapper:: stateToFilterReturnDto);
         return stateFilterReturnDto;
+    }
+
+    @Override
+    public String importStates(MultipartFile file) {
+        try(XSSFWorkbook workbook=new XSSFWorkbook(file.getInputStream())){
+            XSSFSheet sheet=workbook.getSheetAt(0);
+            for (Row row :sheet){
+                if(row.getRowNum()==0){
+                    continue;
+                }
+                String stateName=row.getCell(0).getStringCellValue().trim();
+                if (stateName.isEmpty()){
+                    throw  new RuntimeException("Invalid data at row "+(row.getRowNum()+1));
+                }
+
+                stateRepo.findByStateNameIgnoreCase(stateName)
+                        .orElseGet(()->{
+                            return stateRepo.save(new StateEntity(stateName));
+                        });
+            }
+
+        }catch (IOException e){
+               new RuntimeException(e);
+        }
+        return "State Data Imported successfully";
     }
 }

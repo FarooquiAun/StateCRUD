@@ -31,7 +31,7 @@ public class PincodeEntity {
     private LocalDateTime deletedAt;
 
     @Column(name="status")
-    private char status;
+    private char status='Y';
 
     @ManyToOne
     @JoinColumn(name = "city_id")

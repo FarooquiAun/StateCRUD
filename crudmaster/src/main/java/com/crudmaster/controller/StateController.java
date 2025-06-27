@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -67,6 +68,12 @@ public class StateController {
     @PostMapping("/states/search")
     public ResponseEntity<Page<StateFilterReturnDto>> searchStates(@RequestBody StateFilterDto stateFilterDto){
         return new ResponseEntity<>(stateService.searchState(stateFilterDto),HttpStatus.FOUND);
+    }
+
+
+    @PostMapping(value = "/states/upload" , consumes = "multipart/form-data")
+    public ResponseEntity<String> importStateData(@RequestParam MultipartFile file){
+        return ResponseEntity.ok(stateService.importStates(file));
     }
 
 }

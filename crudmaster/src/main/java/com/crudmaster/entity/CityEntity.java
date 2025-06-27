@@ -32,7 +32,7 @@ public class CityEntity {
     private LocalDateTime deletedAt;
 
     @Column(name="status")
-    private char status;
+    private char status='Y';
 
     @OneToMany(mappedBy = "cityEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PincodeEntity> pincodeEntity;

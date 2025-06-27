@@ -6,13 +6,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.swing.plaf.nimbus.State;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "state")
 @SQLDelete(sql="UPDATE state SET status='N',deleted_at=now() where state_id=?")
-public class StateEntity {
+public class StateEntity  {
     @Id
     @Column(name = "state_id")
     @GeneratedValue(strategy =GenerationType.IDENTITY)
@@ -33,10 +34,29 @@ public class StateEntity {
     private LocalDateTime deletedAt;
 
     @Column(name="status")
-    private char status;
+    private char status='Y';
 
     @OneToMany(mappedBy = "stateEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CityEntity> cityEntity;
+
+
+    public  StateEntity(){
+
+    }
+
+    public StateEntity(List<CityEntity> cityEntity, LocalDateTime createdAt, LocalDateTime deletedAt, long stateId, String stateName, char status, LocalDateTime updatedAt) {
+        this.cityEntity = cityEntity;
+        this.createdAt = createdAt;
+        this.deletedAt = deletedAt;
+        this.stateId = stateId;
+        this.stateName = stateName;
+        this.status = status;
+        this.updatedAt = updatedAt;
+    }
+
+    public StateEntity(String stateName) {
+        this.stateName=stateName;
+    }
 
     public long getStateId() {
         return stateId;
