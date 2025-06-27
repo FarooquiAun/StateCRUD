@@ -3,10 +3,15 @@ package com.crudmaster.service;
 import com.crudmaster.dto.pincode.*;
 import com.crudmaster.entity.CityEntity;
 import com.crudmaster.entity.PincodeEntity;
+import com.crudmaster.entity.StateEntity;
 import com.crudmaster.mapper.PincodeMapper;
 import com.crudmaster.repository.CityRepo;
 import com.crudmaster.repository.PincodeRepo;
+import com.crudmaster.repository.StateRepo;
 import com.crudmaster.specification.pincodespecification.PincodeSpecification;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.PageRequest;
@@ -14,8 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,11 +31,13 @@ public class PincodeServiceImpl implements PincodeService{
     private PincodeRepo pincodeRepo;
     private PincodeMapper pincodeMapper;
     private CityRepo cityRepo;
+    private StateRepo stateRepo;
 
-    public PincodeServiceImpl(PincodeRepo pincodeRepo, PincodeMapper pincodeMapper, CityRepo cityRepo) {
+    public PincodeServiceImpl(PincodeRepo pincodeRepo, PincodeMapper pincodeMapper, CityRepo cityRepo,StateRepo stateRepo) {
         this.pincodeRepo = pincodeRepo;
         this.pincodeMapper=pincodeMapper;
         this.cityRepo = cityRepo;
+        this.stateRepo=stateRepo;
     }
 
     @Override
@@ -96,6 +105,44 @@ public class PincodeServiceImpl implements PincodeService{
         Pageable pageable=PageRequest.of(filterDto.getPage(),filterDto.getSize()
         ,Sort.by(direction,filterDto.getSortBy()));
         return pincodeRepo.findAll(spec,pageable).map(pincodeMapper::pincodeToFilterReturnDto);
+    }
+
+    @Override
+    public String importPincodes(MultipartFile file) {
+        try(XSSFWorkbook workbook=new XSSFWorkbook(file.getInputStream())){
+            XSSFSheet sheet=workbook.getSheetAt(0);
+            for (Row row: sheet){
+                if (row.getRowNum()==0) {
+                    continue;
+                }
+                Long pincode=(long)row.getCell(0).getNumericCellValue();
+                String cityName=row.getCell(1).getStringCellValue().trim();
+                String stateName=row.getCell(2).getStringCellValue().trim();
+
+                if (pincode==null || cityName.isEmpty() || stateName.isEmpty()){
+                    throw  new RuntimeException("Invalid data in row"+(row.getRowNum()+1));
+                }
+                StateEntity state=stateRepo.findByStateNameIgnoreCase(stateName).orElseThrow(
+                        ()-> new RuntimeException("State  not found"+stateName)
+                );
+                CityEntity city=cityRepo.findByCityNameIgnoreCaseAndStateEntity(cityName,state).orElseThrow(
+                        ()-> new RuntimeException("City not found "+ cityName)
+                );
+                boolean exists=pincodeRepo.existsByPincodeAndCityEntity(pincode,city);
+                if (!exists){
+                    PincodeEntity pincodeEntity=new PincodeEntity();
+                    pincodeEntity.setPincode(pincode);
+                    pincodeEntity.setCityEntity(city);
+                    pincodeRepo.save(pincodeEntity);
+                }
+
+
+            }
+
+        }catch (Exception e){
+            throw new  RuntimeException(e);
+        }
+        return "Pincode Data imported Successfully";
     }
 
 

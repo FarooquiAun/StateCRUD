@@ -3,8 +3,10 @@ package com.crudmaster.service;
 import com.crudmaster.dto.pincode.*;
 import com.crudmaster.entity.PincodeEntity;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface PincodeService {
@@ -14,5 +16,6 @@ public interface PincodeService {
    PincodeDto updatePincode(Long pincodeId, PincodeUpdateDto pincodeUpdateDto);
    String deletePincode(Long pincodeId);
    Page<PincodeFilterReturnDto> searchPincode(PincodeFilterDto pincodeFilterDto);
+   String importPincodes(MultipartFile file);
 
 }

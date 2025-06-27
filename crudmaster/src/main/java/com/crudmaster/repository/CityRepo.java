@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CityRepo extends JpaRepository<CityEntity,Long>, JpaSpecificationExecutor<CityEntity> {
@@ -20,5 +21,7 @@ public interface CityRepo extends JpaRepository<CityEntity,Long>, JpaSpecificati
 
     @Query("SELECT DISTINCT c FROM CityEntity c LEFT JOIN FETCH c.pincodeEntity WHERE c.stateEntity.stateId IN (SELECT s.stateId FROM StateEntity s WHERE s.status = 'Y')")
     List<CityEntity> findCitiesWithPincodes();
+
+   Optional<CityEntity> findByCityNameIgnoreCaseAndStateEntity(String cityName,StateEntity state);
 
 }

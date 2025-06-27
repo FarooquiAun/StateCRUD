@@ -1,5 +1,6 @@
 package com.crudmaster.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
@@ -35,6 +36,7 @@ public class CityEntity {
     private char status='Y';
 
     @OneToMany(mappedBy = "cityEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<PincodeEntity> pincodeEntity;
 
 

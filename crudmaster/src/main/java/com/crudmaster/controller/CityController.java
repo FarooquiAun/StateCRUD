@@ -6,6 +6,7 @@ import com.crudmaster.service.CityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,6 +58,11 @@ public class CityController {
     @PostMapping("/cities/search")
     public ResponseEntity<CityFilterReturnDto> searchCity(@RequestBody CityFilterDto cityFilterDto){
         return new ResponseEntity(cityService.searchCity(cityFilterDto),HttpStatus.FOUND);
+    }
+
+    @PostMapping(value = "cities/upload" , consumes = "multipart/form-data")
+    public ResponseEntity<String> importCities (@RequestParam MultipartFile file){
+        return ResponseEntity.ok(cityService.importCity(file));
     }
 
 

@@ -6,6 +6,7 @@ import com.crudmaster.service.PincodeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -52,4 +53,10 @@ public class PincodeController {
 
         return new ResponseEntity(pincodeService.searchPincode(pincodeFilterDto),HttpStatus.FOUND);
     }
+
+    @PostMapping(value = "/pincodes/upload",consumes = "multipart/form-data")
+    public ResponseEntity<String>  importPincode(@RequestParam MultipartFile file){
+        return ResponseEntity.ok(pincodeService.importPincodes(file));
+    }
+
 }
