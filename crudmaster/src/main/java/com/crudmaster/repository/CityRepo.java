@@ -24,4 +24,6 @@ public interface CityRepo extends JpaRepository<CityEntity,Long>, JpaSpecificati
 
    Optional<CityEntity> findByCityNameIgnoreCaseAndStateEntity(String cityName,StateEntity state);
 
+    Optional<CityEntity> findByCityNameIgnoreCase(String cityName);
+
 }
